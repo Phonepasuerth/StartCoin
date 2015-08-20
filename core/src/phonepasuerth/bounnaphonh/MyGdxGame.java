@@ -2,22 +2,28 @@ package phonepasuerth.bounnaphonh;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 
 public class MyGdxGame extends ApplicationAdapter {
 	//Explicit
 	private SpriteBatch batch;
-	private Texture wallpaperTexture, cloudTexture;
+	private Texture wallpaperTexture, cloudTexture, pigTexture;
 	private OrthographicCamera objOrthographicCamera;//To make Auto size on device in difference screen
 	private BitmapFont nameBitmapFont;
 	private int xCloudAnInt, yCloudAnInt = 600;
 	private boolean cloudABoolean = true;
-	
+	private Rectangle pigRectangle;//Reflection to correct or wrong match
+	private Vector3 objVector3;
+	private Sound pigSound;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
@@ -35,7 +41,18 @@ public class MyGdxGame extends ApplicationAdapter {
 		nameBitmapFont.setScale(4);
 		//setUp Cloud
 		cloudTexture = new Texture("cloud.png");
+		//Setup pig
 
+		pigTexture = new Texture("pig.png");
+		// Setup Rectangle pig
+		pigRectangle = new Rectangle();
+		pigRectangle.x = 568;
+		pigRectangle.y = 100;
+		pigRectangle.width = 64;
+		pigRectangle.height = 64;
+
+		//Setup pig sound
+		pigSound = Gdx.audio.newSound(Gdx.files.internal("pig.wav"));
 
 	}	//Create เอาไว้กำนดค่า
 
@@ -59,15 +76,45 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.draw(cloudTexture, xCloudAnInt,yCloudAnInt);
 
 		//Drawable BitMaoFont
-		nameBitmapFont.draw(batch, "Coin Collection", 30, 500);
+		nameBitmapFont.draw(batch, "Coin Collection", 50, 750);
+		// Drawable Pig
+		batch.draw(pigTexture, pigRectangle.x, pigRectangle.y);
+
 
 		batch.end();
 
 		//Move Cloud
 
 		moveCloud();
+		//Active When Touch Screen
+		activeTouchScreen();
 
 	}	//Render user as loop
+
+	private void activeTouchScreen() {
+		if (Gdx.input.isTouched()) {//Boolean on touch screen when touch
+			//Sound effect pig
+			pigSound.play();//to recall sound from file
+			objVector3 = new Vector3();
+			objVector3.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			if (objVector3.x < 600) {
+
+				if (pigRectangle.x < 0) {
+					pigRectangle.x = 0;
+				} else {
+					pigRectangle.x -= 10;
+				}
+
+			} else {
+				if (pigRectangle.x > 1136) {
+					pigRectangle.x = 1136;
+				} else {
+					pigRectangle.x += 10;
+				}
+			}
+		}//If Statement
+
+	}//Active TouchScreen
 
 	private void moveCloud() {
 		if (cloudABoolean) {
