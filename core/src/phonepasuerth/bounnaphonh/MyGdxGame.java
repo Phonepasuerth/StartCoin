@@ -21,17 +21,17 @@ public class MyGdxGame extends ApplicationAdapter {
 	//Explicit
 	private SpriteBatch batch;
 	private Texture wallpaperTexture, cloudTexture,
-			pigTexture, coinsTexture;
+			pigTexture, coinsTexture, rainTexture;
 	private OrthographicCamera objOrthographicCamera;//To make Auto size on device in difference screen
 	private BitmapFont nameBitmapFont, scoreBitmapFont;
 	private int xCloudAnInt, yCloudAnInt = 600;
 	private boolean cloudABoolean = true;
-	private Rectangle pigRectangle,coinsRectangle;//Reflection to correct or wrong match
+	private Rectangle pigRectangle,coinsRectangle, rainRectangle;//Reflection to correct or wrong match
 	private Vector3 objVector3;
 	private Sound pigSound,waterDropSound,coinsDropSound;
-	private Array<Rectangle> coinsArray;
-	private long lastDropCoins;
-	private Iterator<Rectangle> coinsIterator;//==>java.util
+	private Array<Rectangle> coinsArray, rainArray;
+	private long lastDropCoins, lastDropRain;
+	private Iterator<Rectangle> coinsIterator, rainIterator;//==>java.util
 	private int scoreAnInt = 0;
 
 
@@ -80,8 +80,24 @@ public class MyGdxGame extends ApplicationAdapter {
 		scoreBitmapFont = new BitmapFont();
 		scoreBitmapFont.setColor(Color.BLUE);
 		scoreBitmapFont.setScale(4);
+		//Setup rainTexture
+		rainTexture = new Texture("droplet.png");
+
+		// Create RainArray
+		rainArray = new Array<Rectangle>();
+		rainRandomDrop();
 
 	}	//Create เอาไว้กำนดค่า
+
+	private void rainRandomDrop() {
+		rainRectangle = new Rectangle();
+		rainRectangle.x = MathUtils.random(0, 1136);//1136 from 1200-64
+		rainRectangle.y = 800;
+		rainRectangle.width=64;
+		rainRectangle.height = 64;
+		rainArray.add(rainRectangle);
+		lastDropRain = TimeUtils.nanoTime();
+	}
 
 	private void coinsRandomDrop() {
 		coinsRectangle = new Rectangle();
@@ -113,7 +129,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.draw(cloudTexture, xCloudAnInt,yCloudAnInt);
 
 		//Drawable BitMaoFont
-		nameBitmapFont.draw(batch, "Coin Collection", 450, 700);
+		nameBitmapFont.draw(batch, "Coins Collection", 450, 700);
 		// Drawable Pig
 		batch.draw(pigTexture, pigRectangle.x, pigRectangle.y);
 
@@ -123,6 +139,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 		//Drawable score
 		scoreBitmapFont.draw(batch,"score="+Integer.toString(scoreAnInt), 500,500);//
+		//drawable Rain
+		for (Rectangle forRain : rainArray) {
+			batch.draw(rainTexture, forRain.x, forRain.y);
+		}
 
 
 			batch.end();
@@ -134,9 +154,37 @@ public class MyGdxGame extends ApplicationAdapter {
 		activeTouchScreen();
 		//Random Drop Coins
 		randomDropCoins();
+		//Random Drop Rain
+		randomDropRain();
 
 
 	}	//Render user as loop
+
+	private void randomDropRain() {
+		if (TimeUtils.nanoTime() - lastDropRain > 1E9) {
+			rainRandomDrop();
+		}    //if
+		rainIterator = rainArray.iterator();
+		while (rainIterator.hasNext()) {
+
+			Rectangle myRainRectangle = rainIterator.next();
+			myRainRectangle.y -= 50 * Gdx.graphics.getDeltaTime();
+
+			//When Rain drop into floor
+			if (myRainRectangle.y+64<0) {
+				waterDropSound.play();
+				rainIterator.remove();
+			}// if
+			//When Rain Overlap Pig
+			if (myRainRectangle.overlaps(pigRectangle)) {
+				scoreAnInt -= 1;
+				waterDropSound.play();
+				rainIterator.remove();
+			}    //if
+
+		}    //While
+
+	}	//randomDropRain
 
 	private void randomDropCoins() {
 		if (TimeUtils.nanoTime()-lastDropCoins>1E9) {//1E9 mean 10^9
@@ -155,6 +203,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}// if loop
 			//WHen coins overlap Pig
 			if (myCoinsRectangle.overlaps(pigRectangle)) {
+				scoreAnInt += 1;
 				coinsDropSound.play();
 				coinsIterator.remove();
 			}// if
