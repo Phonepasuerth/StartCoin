@@ -23,15 +23,16 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Texture wallpaperTexture, cloudTexture,
 			pigTexture, coinsTexture;
 	private OrthographicCamera objOrthographicCamera;//To make Auto size on device in difference screen
-	private BitmapFont nameBitmapFont;
+	private BitmapFont nameBitmapFont, scoreBitmapFont;
 	private int xCloudAnInt, yCloudAnInt = 600;
 	private boolean cloudABoolean = true;
 	private Rectangle pigRectangle,coinsRectangle;//Reflection to correct or wrong match
 	private Vector3 objVector3;
-	private Sound pigSound,waterDropSound,conisDropSound;
+	private Sound pigSound,waterDropSound,coinsDropSound;
 	private Array<Rectangle> coinsArray;
 	private long lastDropCoins;
 	private Iterator<Rectangle> coinsIterator;//==>java.util
+	private int scoreAnInt = 0;
 
 
 	@Override
@@ -74,9 +75,11 @@ public class MyGdxGame extends ApplicationAdapter {
 		//Setup WaterDrop
 		waterDropSound = Gdx.audio.newSound(Gdx.files.internal("water_drop.wav"));
 		//Set coin drop
-		conisDropSound = Gdx.audio.newSound(Gdx.files.internal("coins_drop.wav"));
-
-
+		coinsDropSound = Gdx.audio.newSound(Gdx.files.internal("coins_drop.wav"));
+		//Setup scoreBitMapfont
+		scoreBitmapFont = new BitmapFont();
+		scoreBitmapFont.setColor(Color.BLUE);
+		scoreBitmapFont.setScale(4);
 
 	}	//Create เอาไว้กำนดค่า
 
@@ -110,7 +113,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.draw(cloudTexture, xCloudAnInt,yCloudAnInt);
 
 		//Drawable BitMaoFont
-		nameBitmapFont.draw(batch, "Coin Collection", 50, 750);
+		nameBitmapFont.draw(batch, "Coin Collection", 450, 700);
 		// Drawable Pig
 		batch.draw(pigTexture, pigRectangle.x, pigRectangle.y);
 
@@ -118,6 +121,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		for (Rectangle forCoins : coinsArray) {
 			batch.draw(coinsTexture, forCoins.x, forCoins.y);
 		}
+		//Drawable score
+		scoreBitmapFont.draw(batch,"score="+Integer.toString(scoreAnInt), 500,500);//
 
 
 			batch.end();
@@ -150,7 +155,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}// if loop
 			//WHen coins overlap Pig
 			if (myCoinsRectangle.overlaps(pigRectangle)) {
-				conisDropSound.play();
+				coinsDropSound.play();
 				coinsIterator.remove();
 			}// if
 
