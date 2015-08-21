@@ -24,16 +24,16 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Texture wallpaperTexture, cloudTexture,
 			pigTexture, coinsTexture, rainTexture;
 	private OrthographicCamera objOrthographicCamera;//To make Auto size on device in difference screen
-	private BitmapFont nameBitmapFont, scoreBitmapFont;
+	private BitmapFont nameBitmapFont, scoreBitmapFont,showScoreBitmapFont;
 	private int xCloudAnInt, yCloudAnInt = 600;
-	private boolean cloudABoolean = true;
+	private boolean cloudABoolean = true, finishABoolean = false;
 	private Rectangle pigRectangle,coinsRectangle, rainRectangle;//Reflection to correct or wrong match
 	private Vector3 objVector3;
 	private Sound pigSound,waterDropSound,coinsDropSound;//sound only one time play
 	private Array<Rectangle> coinsArray, rainArray;
 	private long lastDropCoins, lastDropRain;
 	private Iterator<Rectangle> coinsIterator, rainIterator;//==>java.util
-	private int scoreAnInt = 0, falseAnInt = 0;
+	private int scoreAnInt = 0, falseAnInt = 0, finalScoreAnInt;//final score mean last score
 	private Music rainMusic,backgroundMusic;//loop music
 
 
@@ -95,6 +95,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
 		//setup BackgroundMusic
 		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("bggame.mp3"));
+		//Setup showScore
+		showScoreBitmapFont = new BitmapFont();
+		showScoreBitmapFont.setColor(230,28,223,255);// RGB from photoshop Pink color can find your self
+		showScoreBitmapFont.setScale(5);
 
 	}	//Create เอาไว้กำนดค่า
 
@@ -128,11 +132,10 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		//เอาไว้วาด object
 		batch.begin();
-
 		//Drawable Wallpaper
 
-
 		batch.draw(wallpaperTexture, 0, 0);
+
 
 		//Drawable Cloud
 		batch.draw(cloudTexture, xCloudAnInt,yCloudAnInt);
@@ -152,6 +155,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		for (Rectangle forRain : rainArray) {
 			batch.draw(rainTexture, forRain.x, forRain.y);
 		}
+		if (finishABoolean) {
+
+			batch.draw(wallpaperTexture,0,0);
+			showScoreBitmapFont.draw(batch, "Your Score==>" + Integer.toString(finalScoreAnInt), 300, 300);
+
+		}//if
 
 
 			batch.end();
@@ -231,15 +240,24 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	private void checkFalse() {
 		if (falseAnInt > 20) {
+			dispose();
 
+			if (!finishABoolean) {
+				finalScoreAnInt = scoreAnInt;
+			}//if
+			finishABoolean = true;
 		}//if
 	}//Check false Method
 
 	@Override
 	public void dispose() {
 		super.dispose();
+
 		backgroundMusic.dispose();
 		rainMusic.dispose();
+		pigSound.dispose();
+		waterDropSound.dispose();
+		coinsDropSound.dispose();
 
 	}//dispose
 
