@@ -28,7 +28,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	private boolean cloudABoolean = true;
 	private Rectangle pigRectangle,coinsRectangle;//Reflection to correct or wrong match
 	private Vector3 objVector3;
-	private Sound pigSound;
+	private Sound pigSound,waterDropSound,conisDropSound;
 	private Array<Rectangle> coinsArray;
 	private long lastDropCoins;
 	private Iterator<Rectangle> coinsIterator;//==>java.util
@@ -40,7 +40,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		//การกำนดขนาดของจอที่ต้องการ Setup screen
 		objOrthographicCamera = new OrthographicCamera();
-		objOrthographicCamera.setToOrtho(false,1280,720);
+		objOrthographicCamera.setToOrtho(false, 1280, 720);
 
 		//Setup WallPaper
 		wallpaperTexture = new Texture("background.png");
@@ -68,6 +68,15 @@ public class MyGdxGame extends ApplicationAdapter {
 		//Create coinArray
 		coinsArray = new Array<Rectangle>();
 		coinsRandomDrop();
+
+
+
+		//Setup WaterDrop
+		waterDropSound = Gdx.audio.newSound(Gdx.files.internal("water_drop.wav"));
+		//Set coin drop
+		conisDropSound = Gdx.audio.newSound(Gdx.files.internal("coins_drop.wav"));
+
+
 
 	}	//Create เอาไว้กำนดค่า
 
@@ -135,12 +144,18 @@ public class MyGdxGame extends ApplicationAdapter {
 			myCoinsRectangle.y -= 50 * Gdx.graphics.getDeltaTime();
 			//when Coins into Floor(To clear memory
 			if (myCoinsRectangle.y + 64 < 0) {
+				waterDropSound.play();
 				coinsIterator.remove();
 
-			}
+			}// if loop
+			//WHen coins overlap Pig
+			if (myCoinsRectangle.overlaps(pigRectangle)) {
+				conisDropSound.play();
+				coinsIterator.remove();
+			}// if
 
+		}// while loop
 
-		}
 
 	}//RandomDropCoins
 
