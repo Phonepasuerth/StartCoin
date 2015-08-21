@@ -2,6 +2,7 @@ package phonepasuerth.bounnaphonh;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -28,11 +29,14 @@ public class MyGdxGame extends ApplicationAdapter {
 	private boolean cloudABoolean = true;
 	private Rectangle pigRectangle,coinsRectangle, rainRectangle;//Reflection to correct or wrong match
 	private Vector3 objVector3;
-	private Sound pigSound,waterDropSound,coinsDropSound;
+	private Sound pigSound,waterDropSound,coinsDropSound;//sound only one time play
 	private Array<Rectangle> coinsArray, rainArray;
 	private long lastDropCoins, lastDropRain;
 	private Iterator<Rectangle> coinsIterator, rainIterator;//==>java.util
-	private int scoreAnInt = 0;
+	private int scoreAnInt = 0, falseAnInt = 0;
+	private Music rainMusic,backgroundMusic;//loop music
+
+
 
 
 	@Override
@@ -86,6 +90,11 @@ public class MyGdxGame extends ApplicationAdapter {
 		// Create RainArray
 		rainArray = new Array<Rectangle>();
 		rainRandomDrop();
+
+		//Setup rainMusic
+		rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
+		//setup BackgroundMusic
+		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("bggame.mp3"));
 
 	}	//Create เอาไว้กำนดค่า
 
@@ -156,6 +165,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		randomDropCoins();
 		//Random Drop Rain
 		randomDropRain();
+		//Play rain Music
+		rainMusic.play();
+		//play Music background
+		backgroundMusic.play();
 
 
 	}	//Render user as loop
@@ -197,8 +210,11 @@ public class MyGdxGame extends ApplicationAdapter {
 			myCoinsRectangle.y -= 50 * Gdx.graphics.getDeltaTime();
 			//when Coins into Floor(To clear memory
 			if (myCoinsRectangle.y + 64 < 0) {
+				falseAnInt += 1;
 				waterDropSound.play();
 				coinsIterator.remove();
+
+				checkFalse();
 
 			}// if loop
 			//WHen coins overlap Pig
@@ -212,6 +228,20 @@ public class MyGdxGame extends ApplicationAdapter {
 
 
 	}//RandomDropCoins
+
+	private void checkFalse() {
+		if (falseAnInt > 20) {
+
+		}//if
+	}//Check false Method
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		backgroundMusic.dispose();
+		rainMusic.dispose();
+
+	}//dispose
 
 	private void activeTouchScreen() {
 		if (Gdx.input.isTouched()) {//Boolean on touch screen when touch
