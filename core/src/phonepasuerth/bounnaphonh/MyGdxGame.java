@@ -105,16 +105,44 @@ public class MyGdxGame extends ApplicationAdapter {
 		// Drawable Pig
 		batch.draw(pigTexture, pigRectangle.x, pigRectangle.y);
 
+		// Drawable Coins
+		for (Rectangle forCoins : coinsArray) {
+			batch.draw(coinsTexture, forCoins.x, forCoins.y);
+		}
 
-		batch.end();
+
+			batch.end();
 
 		//Move Cloud
 
 		moveCloud();
 		//Active When Touch Screen
 		activeTouchScreen();
+		//Random Drop Coins
+		randomDropCoins();
+
 
 	}	//Render user as loop
+
+	private void randomDropCoins() {
+		if (TimeUtils.nanoTime()-lastDropCoins>1E9) {//1E9 mean 10^9
+			coinsRandomDrop();
+		}
+		coinsIterator = coinsArray.iterator();
+		while (coinsIterator.hasNext()) {
+
+			Rectangle myCoinsRectangle = coinsIterator.next();
+			myCoinsRectangle.y -= 50 * Gdx.graphics.getDeltaTime();
+			//when Coins into Floor(To clear memory
+			if (myCoinsRectangle.y + 64 < 0) {
+				coinsIterator.remove();
+
+			}
+
+
+		}
+
+	}//RandomDropCoins
 
 	private void activeTouchScreen() {
 		if (Gdx.input.isTouched()) {//Boolean on touch screen when touch
